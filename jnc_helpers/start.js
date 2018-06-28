@@ -11,17 +11,16 @@
 			var INTERSECTED;
 			var crosshair;
 
-
-
 				container = document.createElement( 'div' );
 				document.body.appendChild( container );
 
 				var info = document.createElement( 'div' );
 				info.style.position = 'absolute';
 				info.style.top = '10px';
+				info.style.fontSize = '1.2em';
 				info.style.width = '100%';
 				info.style.textAlign = 'center';
-				info.innerHTML = '<a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> webgl - interactive cubes';
+				info.innerHTML = '<a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> jnc - cubes and planes';
 				container.appendChild( info );
 
 				scene = new THREE.Scene();
