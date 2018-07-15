@@ -6,9 +6,11 @@
 			var camera, scene, raycaster, renderer;
 
 			var room;
+			var aerodrome;
 			var isMouseDown = false;
 
 			var INTERSECTED;
+			var PLANE_INTERSECTED;
 			var crosshair;
 
 				container = document.createElement( 'div' );
@@ -32,3 +34,6 @@
 				);
 				room.position.y = 3;
 				scene.add( room );
+
+				aerodrome = new THREE.Object3D();
+				scene.add(aerodrome);

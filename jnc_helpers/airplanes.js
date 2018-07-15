@@ -28,8 +28,8 @@ var Colors = {
 		
 		// Create the cabin
 		var geomCockpit = new THREE.BoxGeometry(60,50,50,1,1,1);
-		//var matCockpit = new THREE.MeshPhongMaterial({color:Colors.red, shading:THREE.FlatShading});
-		var matCockpit = new THREE.MeshBasicMaterial( col || {color: 0xffff00} );
+		var matCockpit = new THREE.MeshLambertMaterial({color: (col || Colors.blue)});
+		//var matCockpit = new THREE.MeshBasicMaterial( col || {color: 0xffff00} );
 		var cockpit = new THREE.Mesh(geomCockpit, matCockpit);
 		cockpit.castShadow = true;
 		cockpit.receiveShadow = true;
@@ -113,13 +113,15 @@ var Colors = {
 	airplane4.mesh.position.z = orbit;
 	airplane4.mesh.rotation.y = Math.PI;
 
-	var airplane5 = createPlane(0.01,  Colors.blue);
+	var airplane5 = createPlane(0.01,  Colors.pink);
 	airplane5.mesh.position.y = height + 0.5;
 	airplane5.mesh.position.z = orbit;
 	airplane5.mesh.rotation.y = Math.PI;
 	var soloPlane = new THREE.Object3D();
 	soloPlane.add(airplane5.mesh);
-	scene.add(soloPlane);
+	//scene.add(soloPlane);
+	//room.add(soloPlane);  --not working
+	aerodrome.add(soloPlane);
 
 	var allPlanes = new THREE.Object3D();
 	allPlanes.add (airplane.mesh);
@@ -127,3 +129,4 @@ var Colors = {
 	allPlanes.add (airplane3.mesh);
 	allPlanes.add (airplane4.mesh);
 	scene.add (allPlanes);
+	//room.add(allPlanes);  --not working
