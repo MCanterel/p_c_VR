@@ -3,9 +3,10 @@
 var yAxis = new THREE.Vector3(0, 1, 0);
 var orbit = 5.5;
 var height = 3;
+var soloPlaneSpeed = 0.3;
 
 function rotateAroundWorldAxis(object, axis, radians) {
-	rotWorldMatrix = new THREE.Matrix4();
+	var rotWorldMatrix = new THREE.Matrix4();
 	rotWorldMatrix.makeRotationAxis(axis.normalize(), radians);
 	rotWorldMatrix.multiply(object.matrix);
 	// pre-multiply
@@ -87,7 +88,7 @@ var AirPlane = function (col) {
 	blade.position.set(8, 0, 0);
 	blade.castShadow = true;
 	blade.receiveShadow = true;
-	
+
 	this.propeller.add(blade);
 	this.propeller.position.set(50, 0, 0);
 	this.propeller.name = "prop";

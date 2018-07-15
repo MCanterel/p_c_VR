@@ -31,7 +31,7 @@
 
 	<script src="build/three.js"></script>
 	<script src="js/vr/WebVR.js"></script>
-	
+
 	<script src="jnc_helpers/start.js"></script>
 	<script src="jnc_helpers/airplanes.js"></script>
 
@@ -62,7 +62,7 @@
 
 			var geometry = new THREE.BoxBufferGeometry(0.15, 0.15, 0.15);
 
-			for (var i = 0; i < 300; i++) {
+			for (var i = 0; i < 2000; i++) {
 				var object = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({
 					color: Math.random() * 0xffffff
 				}));
@@ -153,29 +153,31 @@
 			var d = new Date();
 			var n = d.getTime();
 
-			rotateAroundWorldAxis(soloPlane, yAxis, -Math.PI / 180 * 0.3);
-			soloPlane.position.y = Math.sin(n * 0.0005) * 2 + 0.3;
+			rotateAroundWorldAxis(soloPlane, yAxis, -Math.PI / 180 * soloPlaneSpeed);
+			soloPlane.position.y = Math.sin(n * 0.0005) * 2 + soloPlaneSpeed;
 			soloPlane.updateMatrix();
 
 			allPlanes.rotation.y -= .005;
 			allPlanes.children.forEach(function (child) {
 				child.children[4].rotation.x += 0.05;
 			});
+			if (soloPlane.children.length > 0) {
+				soloPlane.children[0].children[4].rotation.x += 0.08;
+			}
 
-			soloPlane.children[0].children[4].rotation.x += 0.08;
 
 			if (isMouseDown === true) {
-
+				console.log("Mouse pressed");
 				var cube = room.children[0];
 				room.remove(cube);
 
-				cube.position.set(0, 0, -0.75);
-				cube.position.applyQuaternion(camera.quaternion);
-				cube.userData.velocity.x = (Math.random() - 0.5) * 0.02 * delta;
-				cube.userData.velocity.y = (Math.random() - 0.5) * 0.02 * delta;
-				cube.userData.velocity.z = (Math.random() * 0.01 - 0.05) * delta;
-				cube.userData.velocity.applyQuaternion(camera.quaternion);
-				room.add(cube);
+				/* 	cube.position.set(0, 0, -0.75);
+					cube.position.applyQuaternion(camera.quaternion);
+					cube.userData.velocity.x = (Math.random() - 0.5) * 0.02 * delta;
+					cube.userData.velocity.y = (Math.random() - 0.5) * 0.02 * delta;
+					cube.userData.velocity.z = (Math.random() * 0.01 - 0.05) * delta;
+					cube.userData.velocity.applyQuaternion(camera.quaternion);
+					room.add(cube); */
 
 			}
 
@@ -186,10 +188,10 @@
 				y: 0
 			}, camera);
 
-			var intersects = raycaster.intersectObjects(room.children);
+			var intersects = raycaster.intersectObjects(room.children, false);
 
 			if (intersects.length > 0) {
-			
+
 				if (INTERSECTED != intersects[0].object) {
 					if (INTERSECTED) INTERSECTED.material.emissive.setHex(INTERSECTED.currentHex);
 					INTERSECTED = intersects[0].object;
@@ -203,23 +205,41 @@
 			}
 
 
-			var plane_intersects = raycaster.intersectObjects(aerodrome.children, true);
+			if (aerodrome.children.length > 0) {
+				var plane_intersects = raycaster.intersectObjects(aerodrome.children, true);
 
-			if (plane_intersects.length > 0) {
-				//console.log("Hit the target");
-				//console.log(PLANE_INTERSECTED);
-				if (PLANE_INTERSECTED != plane_intersects[0].object) {
-					//console.log(PLANE_INTERSECTED);
+				if (plane_intersects.length > 0) {
+
+					if (PLANE_INTERSECTED != plane_intersects[0].object) {
+
+						if (PLANE_INTERSECTED) PLANE_INTERSECTED.material.emissive.setHex(PLANE_INTERSECTED.currentHex);
+						PLANE_INTERSECTED = plane_intersects[0].object;
+						console.log("Hit the target");
+						console.log(PLANE_INTERSECTED);
+					
+						PLANE_INTERSECTED.parent.parent.remove(PLANE_INTERSECTED.parent);
+
+						airplane5 = createPlane(0.01, Colors.pink);
+						airplane5.mesh.position.y = height + Math.random() - 0.5;
+						airplane5.mesh.position.z = orbit;
+						airplane5.mesh.rotation.y = Math.PI;
+						soloPlane = new THREE.Object3D();
+						soloPlane.add(airplane5.mesh);
+						var oldPlaneSpeed = soloPlaneSpeed;
+						while (soloPlaneSpeed === oldPlaneSpeed || soloPlaneSpeed === 0	|| soloPlaneSpeed < 0.3){
+							soloPlaneSpeed = Math.random();
+						}
+						aerodrome.add(soloPlane);
+						
+					}
+
+				} else {
 					if (PLANE_INTERSECTED) PLANE_INTERSECTED.material.emissive.setHex(PLANE_INTERSECTED.currentHex);
-					PLANE_INTERSECTED = plane_intersects[0].object;
-					PLANE_INTERSECTED.currentHex = PLANE_INTERSECTED.material.emissive.getHex();
-					PLANE_INTERSECTED.material.emissive.setHex(0xffff00);
+					PLANE_INTERSECTED = undefined;
 				}
 
-			} else {
-				if (PLANE_INTERSECTED) PLANE_INTERSECTED.material.emissive.setHex(PLANE_INTERSECTED.currentHex);
-				PLANE_INTERSECTED = undefined;
 			}
+
 
 
 
