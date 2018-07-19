@@ -1,7 +1,7 @@
 // airplane source code
 
 var yAxis = new THREE.Vector3(0, 1, 0);
-var orbit = 6.5;
+var orbit = 30;
 var height = 3;
 var soloPlaneSpeed = 0.1;
 var soloPlaneDir = -1;

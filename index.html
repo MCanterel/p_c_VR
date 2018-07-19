@@ -43,14 +43,14 @@
 			
 			var geometry = new THREE.BoxBufferGeometry(0.15, 0.15, 0.15);
 
-			for (var i = 0; i < 400; i++) {
+			for (var i = 0; i < 1000; i++) {
 				var object = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({
 					color: Math.random() * 0xffffff
 				}));
 
-				object.position.x = Math.random() * 10 - 2;
-				object.position.y = Math.random() * 10 - 2;
-				object.position.z = Math.random() * 10 - 2;
+				object.position.x = Math.random() * rmSize - rmSize/2;
+				object.position.y = Math.random() * rmSize - rmSize/2;
+				object.position.z = Math.random() * rmSize - rmSize/2;
 
 				object.rotation.x = Math.random() * 2 * Math.PI;
 				object.rotation.y = Math.random() * 2 * Math.PI;
@@ -236,23 +236,23 @@
 
 				cube.position.add(cube.userData.velocity);
 
-				if (cube.position.x < -8 || cube.position.x > 8) {
+				if (cube.position.x < -rmSize || cube.position.x > rmSize) {
 
-					cube.position.x = THREE.Math.clamp(cube.position.x, -8, 8);
+					cube.position.x = THREE.Math.clamp(cube.position.x, -rmSize, rmSize);
 					cube.userData.velocity.x = -cube.userData.velocity.x;
 
 				}
 
-				if (cube.position.y < -8 || cube.position.y > 8) {
+				if (cube.position.y < -rmSize || cube.position.y > rmSize) {
 
-					cube.position.y = THREE.Math.clamp(cube.position.y, -8, 8);
+					cube.position.y = THREE.Math.clamp(cube.position.y, -rmSize, rmSize);
 					cube.userData.velocity.y = -cube.userData.velocity.y;
 
 				}
 
-				if (cube.position.z < -8 || cube.position.z > 8) {
+				if (cube.position.z < -rmSize || cube.position.z > rmSize) {
 
-					cube.position.z = THREE.Math.clamp(cube.position.z, -8, 8);
+					cube.position.z = THREE.Math.clamp(cube.position.z, -rmSize, rmSize);
 					cube.userData.velocity.z = -cube.userData.velocity.z;
 
 				}

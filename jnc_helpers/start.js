@@ -7,6 +7,7 @@ var camera, scene, raycaster, renderer;
 
 var room;
 var aerodrome;
+var rmSize= 70;
 var isMouseDown = false;
 
 var INTERSECTED;
@@ -28,9 +29,9 @@ info.innerHTML = '<a href="http://threejs.org" target="_blank" rel="noopener">th
 container.appendChild(info);
 
 scene = new THREE.Scene();
-fogColor = new THREE.Color(0x505050);
-scene.background = fogColor;
-camera = new THREE.PerspectiveCamera(85, window.innerWidth / window.innerHeight, 0.1, 40);
+/* fogColor = new THREE.Color(0x505050);
+scene.background = fogColor; */
+camera = new THREE.PerspectiveCamera(85, window.innerWidth / window.innerHeight, 0.1, 5001);
 scene.add(camera);
 
 crosshair = new THREE.Mesh(
@@ -50,11 +51,27 @@ var light = new THREE.DirectionalLight(0xffffff);
 light.position.set(1, 1, 1).normalize();
 scene.add(light);
 
+var imagePrefix = "images/view";
+var directions  = ["posx", "negx", "posy", "negy", "posz", "negz"];
+var imageSuffix = ".jpg";
+var skyGeometry = new THREE.CubeGeometry( 5000, 5000, 5000 );	
+	
+	var materialArray = [];
+	for (var i = 0; i < 6; i++)
+		materialArray.push( new THREE.MeshBasicMaterial({
+			map: THREE.ImageUtils.loadTexture( imagePrefix + directions[i] + imageSuffix ),
+			side: THREE.BackSide
+		}));
+	var skyMaterial = new THREE.MeshFaceMaterial( materialArray );
+	var skyBox = new THREE.Mesh( skyGeometry, skyMaterial );
+	scene.add( skyBox );
+
 room = new THREE.Mesh(
-	new THREE.BoxBufferGeometry(18, 18, 18, 8, 8, 8),
+	new THREE.BoxBufferGeometry(rmSize, rmSize, rmSize, 8, 8, 8),
 	new THREE.MeshBasicMaterial({
 		color: 0x404040,
-		wireframe: true
+		wireframe: true,
+		visible: false
 	})
 );
 room.position.y = 3;
