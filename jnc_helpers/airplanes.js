@@ -1,18 +1,21 @@
 // airplane source code
 
 var yAxis = new THREE.Vector3(0, 1, 0);
-var orbit = 5.5;
+var orbit = 6.5;
 var height = 3;
-var soloPlaneSpeed = 0.3;
+var soloPlaneSpeed = 0.1;
+var soloPlaneDir = -1;
 
-function rotateAroundWorldAxis(object, axis, radians) {
+
+//deprecated. just setting object.rotation.y
+/* function rotateAroundWorldAxis(object, axis, radians) {
 	var rotWorldMatrix = new THREE.Matrix4();
 	rotWorldMatrix.makeRotationAxis(axis.normalize(), radians);
 	rotWorldMatrix.multiply(object.matrix);
 	// pre-multiply
 	object.matrix = rotWorldMatrix;
 	object.rotation.setFromRotationMatrix(object.matrix, object.order);
-}
+} */
 
 
 var Colors = {
@@ -36,6 +39,7 @@ var AirPlane = function (col) {
 	var cockpit = new THREE.Mesh(geomCockpit, matCockpit);
 	cockpit.castShadow = true;
 	cockpit.receiveShadow = true;
+	cockpit.name = "cockpt";
 	this.mesh.add(cockpit);
 
 	// Create the engine
@@ -47,6 +51,7 @@ var AirPlane = function (col) {
 	engine.position.x = 40;
 	engine.castShadow = true;
 	engine.receiveShadow = true;
+	engine.name = "engn";
 	this.mesh.add(engine);
 
 	// Create the tail
@@ -58,6 +63,7 @@ var AirPlane = function (col) {
 	tailPlane.position.set(-35, 25, 0);
 	tailPlane.castShadow = true;
 	tailPlane.receiveShadow = true;
+	tailPlane.name = "tailpln";
 	this.mesh.add(tailPlane);
 
 	// Create the wing
@@ -67,6 +73,7 @@ var AirPlane = function (col) {
 	});
 	var sideWing = new THREE.Mesh(geomSideWing, matSideWing);
 	sideWing.castShadow = true;
+	sideWing.name = "sidewng";
 	sideWing.receiveShadow = true;
 	this.mesh.add(sideWing);
 
@@ -93,6 +100,18 @@ var AirPlane = function (col) {
 	this.propeller.position.set(50, 0, 0);
 	this.propeller.name = "prop";
 	this.mesh.add(this.propeller);
+
+	//raycast collider
+
+	var geomCollider = new THREE.BoxGeometry(100,50,150,1,1,1);
+	var matCollider = new THREE.MeshLambertMaterial({
+		color: Colors.brownDark
+	});
+	var matCollider = new THREE.MeshBasicMaterial();
+	matCollider.visible = false;
+	var planeCollider = new THREE.Mesh(geomCollider,matCollider);
+	planeCollider.name = "collider"; 
+	this.mesh.add(planeCollider);
 };
 
 function createPlane(scale, color) {
@@ -132,12 +151,13 @@ allPlanes.add(airplane4.mesh);
 scene.add(allPlanes);
 
 var airplane5 = createPlane(0.01, Colors.pink);
+
 airplane5.mesh.position.y = height + 0.5;
-airplane5.mesh.position.z = orbit;
-airplane5.mesh.rotation.y = Math.PI;
+airplane5.mesh.position.z = Math.random() * 3 - 1.5 + orbit;
+if (soloPlaneDir === -1) airplane5.mesh.rotation.y = Math.PI;
+airplane5.name = "airpln5";
 var soloPlane = new THREE.Object3D();
+soloPlane.name = "soloPln";
 soloPlane.add(airplane5.mesh);
 
-//scene.add(soloPlane);
-//room.add(soloPlane);  --not working
 aerodrome.add(soloPlane);
