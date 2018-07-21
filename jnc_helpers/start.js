@@ -7,7 +7,7 @@ var camera, scene, raycaster, renderer;
 
 var room;
 var aerodrome;
-var rmSize= 70;
+var rmSize= 40;
 var isMouseDown = false;
 
 var INTERSECTED;

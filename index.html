@@ -61,9 +61,9 @@
 				object.scale.z = Math.random()*2 + 0.5;
 
 				object.userData.velocity = new THREE.Vector3();
-				object.userData.velocity.x = Math.random() * 0.01 - 0.005;
-				object.userData.velocity.y = Math.random() * 0.01 - 0.005;
-				object.userData.velocity.z = Math.random() * 0.01 - 0.005;
+				object.userData.velocity.x = Math.random() * 0.08 - 0.04;
+				object.userData.velocity.y = Math.random() * 0.08 - 0.04;
+				object.userData.velocity.z = Math.random() * 0.08 - 0.04;
 
 				room.add(object);
 			}
@@ -135,8 +135,9 @@
 			var n = d.getTime();
 
 			//rotateAroundWorldAxis(soloPlane, yAxis, soloPlaneDir * Math.PI / 180 * soloPlaneSpeed);
-			soloPlane.rotation.y += .008 * soloPlaneDir;
-			soloPlane.position.y = Math.sin(n * 0.0005) * 3 + soloPlaneSpeed;  
+			soloPlane.rotation.y += soloPlaneSpeed * .01 * soloPlaneDir;
+			//soloPlane.rotation.y += .005;
+			soloPlane.position.y = Math.sin(n * 0.002) * 5 + soloPlaneSpeed;  
 			soloPlane.updateMatrix();
 
 			allPlanes.rotation.y -= .005;
@@ -204,8 +205,8 @@
 						aerodrome.remove(soloPlane);
 						airplane5 = createPlane(0.01, Colors.pink);
 						soloPlaneDir = (Math.random() >= 0.5 ? -1 : 1);
-						airplane5.mesh.position.y = height + Math.random() - 0.5;
-						airplane5.mesh.position.z = Math.random() * 3 - 1.5 + orbit;
+						airplane5.mesh.position.y = Math.random() * 10 - 5 + height;
+						airplane5.mesh.position.z = Math.random() * 20 - 10  + orbit;
 						if (soloPlaneDir === -1) airplane5.mesh.rotation.y = Math.PI;
 						soloPlane = new THREE.Object3D();
 						soloPlane.add(airplane5.mesh);
