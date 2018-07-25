@@ -40,25 +40,25 @@
 		animate();
 
 		function init() {
-			
+
 			var geometry = new THREE.BoxBufferGeometry(0.15, 0.15, 0.15);
 
-			for (var i = 0; i < 1000; i++) {
+			for (var i = 0; i < 10; i++) {
 				var object = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({
 					color: Math.random() * 0xffffff
 				}));
 
-				object.position.x = Math.random() * rmSize - rmSize/2;
-				object.position.y = Math.random() * rmSize - rmSize/2;
-				object.position.z = Math.random() * rmSize - rmSize/2;
+				object.position.x = Math.random() * rmSize - rmSize / 2;
+				object.position.y = Math.random() * rmSize - rmSize / 2;
+				object.position.z = Math.random() * rmSize - rmSize / 2;
 
 				object.rotation.x = Math.random() * 2 * Math.PI;
 				object.rotation.y = Math.random() * 2 * Math.PI;
 				object.rotation.z = Math.random() * 2 * Math.PI;
 
-				object.scale.x = Math.random() *2 + 0.5;
-				object.scale.y = Math.random()*2 + 0.5;
-				object.scale.z = Math.random()*2 + 0.5;
+				object.scale.x = Math.random() * 2 + 0.5;
+				object.scale.y = Math.random() * 2 + 0.5;
+				object.scale.z = Math.random() * 2 + 0.5;
 
 				object.userData.velocity = new THREE.Vector3();
 				object.userData.velocity.x = Math.random() * 0.08 - 0.04;
@@ -137,7 +137,7 @@
 			//rotateAroundWorldAxis(soloPlane, yAxis, soloPlaneDir * Math.PI / 180 * soloPlaneSpeed);
 			soloPlane.rotation.y += soloPlaneSpeed * .01 * soloPlaneDir;
 			//soloPlane.rotation.y += .005;
-			soloPlane.position.y = Math.sin(n * 0.002) * 5 + soloPlaneSpeed;  
+			soloPlane.position.y = Math.sin(n * 0.002) * 4 + soloPlaneSpeed;
 			soloPlane.updateMatrix();
 
 			allPlanes.rotation.y -= .005;
@@ -201,12 +201,27 @@
 						console.log("Hit the target");
 						console.log(PLANE_INTERSECTED);
 
+						score++;
+						textMesh.geometry.dispose();
+						textMesh.geometry = new THREE.TextGeometry(score.toString(), {
+							font: myfont,
+							size: .25,
+							height: .1,
+							curveSegments: 16,
+						});
+						textMesh.position.x = 4.5;
+						textMesh.position.y = -0.5;
+						textMesh.rotation.y = Math.PI * 1.5;
+
+
+
+
 						//PLANE_INTERSECTED.parent.parent.remove(PLANE_INTERSECTED.parent);
 						aerodrome.remove(soloPlane);
 						airplane5 = createPlane(0.01, Colors.pink);
 						soloPlaneDir = (Math.random() >= 0.5 ? -1 : 1);
 						airplane5.mesh.position.y = Math.random() * 10 - 5 + height;
-						airplane5.mesh.position.z = Math.random() * 20 - 10  + orbit;
+						airplane5.mesh.position.z = Math.random() * 20 - 10 + orbit;
 						if (soloPlaneDir === -1) airplane5.mesh.rotation.y = Math.PI;
 						soloPlane = new THREE.Object3D();
 						soloPlane.add(airplane5.mesh);
@@ -218,7 +233,7 @@
 
 					}
 
-				} else {			
+				} else {
 					PLANE_INTERSECTED = undefined;
 				}
 
@@ -233,7 +248,7 @@
 
 				var cube = room.children[i];
 
-				cube.userData.velocity.multiplyScalar(1 - (0.001 * delta));
+				//cube.userData.velocity.multiplyScalar(1 + (0.001 * delta));
 
 				cube.position.add(cube.userData.velocity);
 

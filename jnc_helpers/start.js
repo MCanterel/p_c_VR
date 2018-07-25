@@ -7,12 +7,18 @@ var camera, scene, raycaster, renderer;
 
 var room;
 var aerodrome;
-var rmSize= 40;
+var rmSize= 10;
 var isMouseDown = false;
 
 var INTERSECTED;
 var PLANE_INTERSECTED;
 var crosshair;
+
+var fontLoader;
+var textMesh;
+var score = 0;
+//var text = "0";
+var myfont = null;
 
 
 
@@ -79,3 +85,23 @@ scene.add(room);
 
 aerodrome = new THREE.Object3D();
 scene.add(aerodrome);
+
+fontLoader = new THREE.FontLoader();
+		fontLoader.load('fonts/helvetiker_regular.typeface.json', function (font) {
+
+			var textGeometry = new THREE.TextGeometry(score.toString(), {
+				font: font,
+				size: .5,
+				height: .1,
+				curveSegments: 16,
+			});
+			var textMaterial = new THREE.MeshNormalMaterial();
+			textMesh = new THREE.Mesh(textGeometry, textMaterial);
+			textMesh.position.x = 4.5;
+			textMesh.position.y = -0.5;
+			textMesh.rotation.y = Math.PI * 1.5;
+
+			scene.add(textMesh);
+			myfont = font
+		});
+
