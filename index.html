@@ -43,7 +43,7 @@
 
 			var geometry = new THREE.BoxBufferGeometry(0.15, 0.15, 0.15);
 
-			for (var i = 0; i < 10; i++) {
+			for (var i = 0; i < 400; i++) {
 				var object = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({
 					color: Math.random() * 0xffffff
 				}));
@@ -199,24 +199,22 @@
 						//if (PLANE_INTERSECTED) PLANE_INTERSECTED.material.emissive.setHex(PLANE_INTERSECTED.currentHex);
 						PLANE_INTERSECTED = plane_intersects[0].object;
 						console.log("Hit the target");
-						console.log(PLANE_INTERSECTED);
+						//console.log(PLANE_INTERSECTED);
 
 						score++;
 						textMesh.geometry.dispose();
 						textMesh.geometry = new THREE.TextGeometry(score.toString(), {
 							font: myfont,
-							size: .25,
+							size: .5,
 							height: .1,
 							curveSegments: 16,
 						});
-						textMesh.position.x = 4.5;
-						textMesh.position.y = -0.5;
-						textMesh.rotation.y = Math.PI * 1.5;
+						
+						textMesh.position.x = -0.2;
+						textMesh.position.y = -0.25;
+						textMesh.position.z = 0.2;
 
 
-
-
-						//PLANE_INTERSECTED.parent.parent.remove(PLANE_INTERSECTED.parent);
 						aerodrome.remove(soloPlane);
 						airplane5 = createPlane(0.01, Colors.pink);
 						soloPlaneDir = (Math.random() >= 0.5 ? -1 : 1);
@@ -238,8 +236,6 @@
 				}
 
 			}
-
-
 
 
 			// Keep cubes inside room

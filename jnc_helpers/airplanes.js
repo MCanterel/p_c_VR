@@ -151,9 +151,10 @@ allPlanes.add(airplane4.mesh);
 scene.add(allPlanes);
 
 var airplane5 = createPlane(0.01, Colors.pink);
-
+airplane5.mesh.position.x = -8
 airplane5.mesh.position.y = height + 0.5;
 airplane5.mesh.position.z = Math.random() * 3 - 1.5 + orbit;
+airplane5.mesh.rotation.y = Math.PI;
 if (soloPlaneDir === -1) airplane5.mesh.rotation.y = Math.PI;
 airplane5.name = "airpln5";
 var soloPlane = new THREE.Object3D();
