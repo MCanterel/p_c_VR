@@ -3,6 +3,7 @@
 var yAxis = new THREE.Vector3(0, 1, 0);
 var orbit = 30;
 var height = 3;
+var soloPlane;
 var soloPlaneSpeed = 0.1;
 var soloPlaneDir = -1;
 
@@ -123,6 +124,11 @@ function createPlane(scale, color) {
 	return plane;
 }
 
+var allPlanes = new THREE.Object3D();
+
+for (var i = 0; i < planeCount; i++){
+	//console.log("here is the array to populate");
+}
 var airplane1 = createPlane(0.01);
 airplane1.mesh.position.y = height;
 airplane1.mesh.position.x = -orbit;
@@ -142,7 +148,7 @@ airplane4.mesh.position.y = height;
 airplane4.mesh.position.z = orbit;
 airplane4.mesh.rotation.y = Math.PI;
 
-var allPlanes = new THREE.Object3D();
+
 allPlanes.add(airplane1.mesh);
 allPlanes.add(airplane2.mesh);
 allPlanes.add(airplane3.mesh);
@@ -157,7 +163,7 @@ airplane5.mesh.position.z = Math.random() * 3 - 1.5 + orbit;
 airplane5.mesh.rotation.y = Math.PI;
 if (soloPlaneDir === -1) airplane5.mesh.rotation.y = Math.PI;
 airplane5.name = "airpln5";
-var soloPlane = new THREE.Object3D();
+soloPlane = new THREE.Object3D();
 soloPlane.name = "soloPln";
 soloPlane.add(airplane5.mesh);
 
