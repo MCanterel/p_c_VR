@@ -4,13 +4,15 @@ var clock = new THREE.Clock();
 
 var container;
 var camera;
-var scene, raycaster, renderer;
+var scene, raycaster, controlRaycaster,renderer;
 
 var room;
 var aerodrome;
 var rmSize = 10;
 var isMouseDown = false;
 var planeCount = 12;
+
+var obstacleCount = 20;
 
 var INTERSECTED;
 var PLANE_INTERSECTED;
@@ -115,10 +117,151 @@ function init() {
 	info.style.textAlign = 'center';
 	info.innerHTML = '<a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> jnc - cubes and planes';
 	container.appendChild(info);
+
+	renderer = new THREE.WebGLRenderer({
+		antialias: true
+	});
+	renderer.setPixelRatio(window.devicePixelRatio);
+	renderer.setSize(window.innerWidth, window.innerHeight);
+	renderer.vr.enabled = true;
+	container.appendChild(renderer.domElement);
+
+	renderer.domElement.addEventListener('mousedown', onMouseDown, false);
+	renderer.domElement.addEventListener('mouseup', onMouseUp, false);
+	renderer.domElement.addEventListener('touchstart', onMouseDown, false);
+	renderer.domElement.addEventListener('touchend', onMouseUp, false);
+
+	window.addEventListener('resize', onWindowResize, false);
+
+	window.addEventListener('vrdisplaypointerrestricted', onPointerRestricted, false);
+	window.addEventListener('vrdisplaypointerunrestricted', onPointerUnrestricted, false);
+
+
+//  Check this out: When THREE.VRController finds a new controller
+//  it will emit a custom “vr controller connected” event on the
+//  global window object. It uses this to pass you the controller
+//  instance and from there you do what you want with it.
+
+window.addEventListener( 'vr controller connected', function( event ){
+
+	//  Here it is, your VR controller instance.
+	//  It’s really a THREE.Object3D so you can just add it to your scene:
+
+	var controller = event.detail
+	scene.add( controller )
+
+	//  HEY HEY HEY! This is important. You need to make sure you do this.
+	//  For standing experiences (not seated) we need to set the standingMatrix
+	//  otherwise you’ll wonder why your controller appears on the floor
+	//  instead of in your hands! And for seated experiences this will have no
+	//  effect, so safe to do either way:
+
+	controller.standingMatrix = renderer.vr.getStandingMatrix()
+
+
+	//  And for 3DOF (seated) controllers you need to set the controller.head
+	//  to reference your camera. That way we can make an educated guess where
+	//  your hand ought to appear based on the camera’s rotation.
+
+	controller.head = window.camera
+
+
+	//  Right now your controller has no visual.
+	//  It’s just an empty THREE.Object3D.
+	//  Let’s fix that!
+
+	var
+	meshColorOff = 0xDB3236,//  Red.
+	meshColorOn  = 0xF4C20D,//  Yellow.
+	controllerMaterial = new THREE.MeshStandardMaterial({
+
+		color: meshColorOff
+	}),
+	controllerMesh = new THREE.Mesh(
+
+		new THREE.CylinderGeometry( 0.005, 0.05, 0.1, 6 ),
+		controllerMaterial
+	),
+	handleMesh = new THREE.Mesh(
+
+		new THREE.BoxGeometry( 0.03, 0.1, 0.03 ),
+		controllerMaterial
+	)
+
+	controllerMaterial.flatShading = true
+	controllerMesh.rotation.x = -Math.PI / 2
+	handleMesh.position.y = -0.05
+	controllerMesh.add( handleMesh )
+	controller.userData.mesh = controllerMesh//  So we can change the color later.
+	controller.add( controllerMesh )
+	//castShadows( controller )
+	//receiveShadows( controller )
+
+
+	//  Allow this controller to interact with DAT GUI.
+
+	//
+	//var guiInputHelper = dat.GUIVR.addInputObject( controller )
+	//scene.add( guiInputHelper )
+
+
+	//  Button events. How easy is this?!
+	//  We’ll just use the “primary” button -- whatever that might be ;)
+	//  Check out the THREE.VRController.supported{} object to see
+	//  all the named buttons we’ve already mapped for you!
+
+	controller.addEventListener( 'primary press began', function( event ){
+		//console.dir(event);
+		event.target.userData.mesh.material.color.setHex( meshColorOn )
+		console.log(event.target);
+		//var toVec = new THREE.Vector3();
+		
+		//controlRaycaster.set(event.target.position,event.target.position.negate());
+		//var source = this.getWorldPosition();
+		//var target = this.getWorldDirection().negate();
+		//var source = event.target.position;
+		//var target = event.target.rotation;
+		var source = new THREE.Vector3;
+		source = source.fromArray(event.target.gamepad.pose.position);
+		var target = new THREE.Vector3;
+		target = target.fromArray(event.target.gamepad.pose.orientation).multiplyScalar(10);
+		//var source = event.target.position;
+		//var target = event.target.orientation;
+		var geo = new THREE.Geometry();
+		geo.vertices.push(source);
+		geo.vertices.push(target);
+		var material = new THREE.LineBasicMaterial({ color : 0xff0000 });
+		var line = new THREE.Line(geo, material);
+		scene.add(line);
+
+		controlRaycaster.set(source, target);
+		console.log(controlRaycaster);
+		//guiInputHelper.pressed( true )
+	})
+	controller.addEventListener( 'primary press ended', function( event ){
+
+		event.target.userData.mesh.material.color.setHex( meshColorOff )
+		//guiInputHelper.pressed( false )
+	})
+
+
+	//  Daddy, what happens when we die?
+
+	controller.addEventListener( 'disconnected', function( event ){
+
+		controller.parent.remove( controller )
+	})
+})
+
+
+
+	document.body.appendChild(WEBVR.createButton(renderer));
+
 	
 	scene = new THREE.Scene();
 	/* fogColor = new THREE.Color(0x505050);
 	scene.background = fogColor; */
+
 	camera = new THREE.PerspectiveCamera(85, window.innerWidth / window.innerHeight, 0.1, 5001);
 	scene.add(camera);
 
@@ -175,22 +318,11 @@ function init() {
 		myfont = font
 	});
 
-
-
-
-
-
-
-
-
-
-
 //----------------------------
-
 
 	var geometry = new THREE.BoxBufferGeometry(0.15, 0.15, 0.15);
 
-	for (var i = 0; i < 400; i++) {
+	for (var i = 0; i < obstacleCount; i++) {
 		var object = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({
 			color: Math.random() * 0xffffff
 		}));
@@ -216,26 +348,8 @@ function init() {
 	}
 
 	raycaster = new THREE.Raycaster();
-
-	renderer = new THREE.WebGLRenderer({
-		antialias: true
-	});
-	renderer.setPixelRatio(window.devicePixelRatio);
-	renderer.setSize(window.innerWidth, window.innerHeight);
-	renderer.vr.enabled = true;
-	container.appendChild(renderer.domElement);
-
-	renderer.domElement.addEventListener('mousedown', onMouseDown, false);
-	renderer.domElement.addEventListener('mouseup', onMouseUp, false);
-	renderer.domElement.addEventListener('touchstart', onMouseDown, false);
-	renderer.domElement.addEventListener('touchend', onMouseUp, false);
-
-	window.addEventListener('resize', onWindowResize, false);
-
-	window.addEventListener('vrdisplaypointerrestricted', onPointerRestricted, false);
-	window.addEventListener('vrdisplaypointerunrestricted', onPointerUnrestricted, false);
-
-	document.body.appendChild(WEBVR.createButton(renderer));
+	controlRaycaster = new THREE.Raycaster();
+	
 }
 
 init();

@@ -34,6 +34,7 @@
 
 	<script src="jnc_helpers/start.js"></script>
 	<script src="jnc_helpers/airplanes.js"></script>
+	<script src="js/vr/VRController.js"></script>
 
 	<script>
 		animate();
@@ -66,8 +67,9 @@
 
 			if (isMouseDown === true) {
 				console.log("Mouse pressed");
-				var cube = room.children[0];
-				room.remove(cube);
+				// var cube = room.children[0];
+				// room.remove(cube);
+				THREE.VRController.inspect();
 
 				/* 	cube.position.set(0, 0, -0.75);
 					cube.position.applyQuaternion(camera.quaternion);
@@ -85,6 +87,8 @@
 				x: 0,
 				y: 0
 			}, camera);
+
+
 
 			var intersects = raycaster.intersectObjects(room.children, false);
 
@@ -189,9 +193,8 @@
 				cube.rotation.z += cube.userData.velocity.z * 2 * delta;
 
 			}
-
+			THREE.VRController.update()
 			renderer.render(scene, camera);
-
 		}
 	</script>
 </body>
