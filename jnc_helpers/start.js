@@ -5,7 +5,7 @@ var container;
 var camera;
 var scene, raycaster, controlRaycaster, renderer;
 
-var interval = 50;
+var interval = 30;
 var count = 0;
 var room;
 var aerodrome;
@@ -13,7 +13,10 @@ var rmSize = 10;
 var isMouseDown = false;
 var planeCount = 12;
 
-var obstacleCount = 20;
+var cubeTopSpeed = 0.03;
+var cubeLowSpeed = 0.02;
+
+var obstacleCount = 150;
 
 var INTERSECTED;
 var PLANE_INTERSECTED;
@@ -54,7 +57,7 @@ function buildScoreboard(font) {
 	});
 
 	textMesh = new THREE.Mesh(textGeometry, textMaterial);
-	textMesh.position.x = -0.2;
+	textMesh.position.x = -0.4;
 	textMesh.position.y = -0.25;
 	textMesh.position.z = 0.2;
 	scoreboard.add(textMesh);
@@ -73,6 +76,17 @@ function buildScoreboard(font) {
 	scoreboard.rotation.y = Math.PI * 1.5;
 
 	scene.add(scoreboard);
+}
+
+function updateScore(val) {
+	score += val;
+	textMesh.geometry.dispose();
+	textMesh.geometry = new THREE.TextGeometry(score.toString(), {
+		font: myfont,
+		size: .5,
+		height: .1,
+		curveSegments: 16,
+	});
 }
 
 function onMouseDown() {
@@ -104,6 +118,68 @@ function onWindowResize() {
 	camera.updateProjectionMatrix();
 
 	renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+function testHit() {
+
+	// find intersections of objects with controller raycaster
+	var intersects = controlRaycaster.intersectObjects(room.children, false);
+
+	if (intersects.length > 0) {
+		if (INTERSECTED != intersects[0].object) {
+			if (INTERSECTED) INTERSECTED.material.emissive.setHex(INTERSECTED.currentHex);
+			INTERSECTED = intersects[0].object;
+			INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
+			INTERSECTED.material.emissive.setHex(0xff0000);
+			console.log(INTERSECTED);
+			updateScore(2);
+		}
+
+	} else {
+		if (INTERSECTED) INTERSECTED.material.emissive.setHex(INTERSECTED.currentHex);
+		INTERSECTED = undefined;
+	}
+
+	if (aerodrome.children.length > 0 && INTERSECTED === undefined) {
+		var plane_intersects = controlRaycaster.intersectObjects(aerodrome.children, true);
+
+		if (plane_intersects.length > 0) {
+
+			if (PLANE_INTERSECTED != plane_intersects[0].object) {
+
+				//if (PLANE_INTERSECTED) PLANE_INTERSECTED.material.emissive.setHex(PLANE_INTERSECTED.currentHex);
+				PLANE_INTERSECTED = plane_intersects[0].object;
+				console.log("Hit the target");
+				//console.log(PLANE_INTERSECTED);
+
+				updateScore(5);
+
+				textMesh.position.x = -0.2;
+				textMesh.position.y = -0.25;
+				textMesh.position.z = 0.2;
+
+				aerodrome.remove(soloPlane);
+				airplane5 = createPlane(0.01, Colors.pink);
+				soloPlaneDir = (Math.random() >= 0.5 ? -1 : 1);
+				airplane5.mesh.position.y = Math.random() * 10 - 5 + height;
+				airplane5.mesh.position.z = Math.random() * 20 - 10 + orbit;
+				if (soloPlaneDir === -1) airplane5.mesh.rotation.y = Math.PI;
+				soloPlane = new THREE.Object3D();
+				soloPlane.add(airplane5.mesh);
+				var oldPlaneSpeed = soloPlaneSpeed;
+				while (soloPlaneSpeed === oldPlaneSpeed || soloPlaneSpeed > 0.8 || soloPlaneSpeed < 0.35) {
+					soloPlaneSpeed = Math.random();
+				}
+				aerodrome.add(soloPlane);
+			}
+
+		} else {
+			PLANE_INTERSECTED = undefined;
+		}
+	}
+
+
+
 }
 
 function init() {
@@ -191,7 +267,7 @@ function init() {
 		controllerMesh.add(handleMesh)
 		controller.userData.mesh = controllerMesh //  So we can change the color later.
 		controller.add(controllerMesh)
-	
+
 		var tPosition = new THREE.Vector3();
 		var tDirection = new THREE.Vector3(0, 0, -1);
 		var tMatrix = new THREE.Matrix4();
@@ -222,11 +298,13 @@ function init() {
 			tDirection.set(0, 0, -1).applyMatrix4(tMatrix).normalize();
 
 			controlRaycaster.set(tPosition, tDirection);
-			let traceArrow = (new THREE.ArrowHelper(controlRaycaster.ray.direction, controlRaycaster.ray.origin, 300, 0xff0000, 0.2, 0.3));
+			let traceArrow = (new THREE.ArrowHelper(controlRaycaster.ray.direction, controlRaycaster.ray.origin, 400, 0xff0000, 0.2, 0.3));
 			arrows.unshift(traceArrow);
 			scene.add(arrows[0]);
-
+			updateScore(-3);
 			console.log(controlRaycaster);
+
+			testHit();
 		})
 
 		controller.addEventListener('primary press ended', function (event) {
@@ -244,16 +322,16 @@ function init() {
 	camera = new THREE.PerspectiveCamera(85, window.innerWidth / window.innerHeight, 0.1, 5001);
 	scene.add(camera);
 
-/* 	crosshair = new THREE.Mesh(
-		new THREE.RingBufferGeometry(0.02, 0.04, 32),
-		new THREE.MeshBasicMaterial({
-			color: 0xffffff,
-			opacity: 0.5,
-			transparent: true
-		})
-	);
-	crosshair.position.z = -2;
-	camera.add(crosshair); */
+	/* 	crosshair = new THREE.Mesh(
+			new THREE.RingBufferGeometry(0.02, 0.04, 32),
+			new THREE.MeshBasicMaterial({
+				color: 0xffffff,
+				opacity: 0.5,
+				transparent: true
+			})
+		);
+		crosshair.position.z = -2;
+		camera.add(crosshair); */
 
 	scene.add(new THREE.HemisphereLight(0x606060, 0x404040));
 
@@ -318,9 +396,9 @@ function init() {
 		object.scale.z = Math.random() * 2 + 0.5;
 
 		object.userData.velocity = new THREE.Vector3();
-		object.userData.velocity.x = Math.random() * 0.08 - 0.04;
-		object.userData.velocity.y = Math.random() * 0.08 - 0.04;
-		object.userData.velocity.z = Math.random() * 0.08 - 0.04;
+		object.userData.velocity.x = Math.random() * cubeTopSpeed - cubeLowSpeed;
+		object.userData.velocity.y = Math.random() * cubeTopSpeed - cubeLowSpeed;
+		object.userData.velocity.z = Math.random() * cubeTopSpeed - cubeLowSpeed;
 
 		room.add(object);
 	}

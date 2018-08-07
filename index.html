@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
@@ -28,17 +27,14 @@
 </head>
 
 <body>
-
 	<script src="build/three.js"></script>
 	<script src="js/vr/WebVR.js"></script>
-
 	<!-- <script src="https://cdn.rawgit.com/mrdoob/three.js/r87/build/three.js"></script>
 	<script src="https://cdn.rawgit.com/mrdoob/three.js/r87/examples/js/vr/WebVR.js"></script>
 	Can't use these because they seem to load asynchonously -->
 	<script src="js/vr/VRController.js"></script>
 	<script src="jnc_helpers/start.js"></script>
 	<script src="jnc_helpers/airplanes.js"></script>
-
 
 	<script>
 		// all we do here is call the animation loop
@@ -70,10 +66,10 @@
 
 			if (isMouseDown === true) {
 				console.log("Mouse pressed");
+				//THREE.VRController.inspect();  --diagnostics for controller
+
 				// var cube = room.children[0];
 				// room.remove(cube);
-				THREE.VRController.inspect();
-
 				/* 	cube.position.set(0, 0, -0.75);
 					cube.position.applyQuaternion(camera.quaternion);
 					cube.userData.velocity.x = (Math.random() - 0.5) * 0.02 * delta;
@@ -81,68 +77,6 @@
 					cube.userData.velocity.z = (Math.random() * 0.01 - 0.05) * delta;
 					cube.userData.velocity.applyQuaternion(camera.quaternion);
 					room.add(cube); */
-			}
-
-			// find intersections of objects with controller raycaster
-			var intersects = controlRaycaster.intersectObjects(room.children, false);
-
-			if (intersects.length > 0) {
-
-				if (INTERSECTED != intersects[0].object) {
-					if (INTERSECTED) INTERSECTED.material.emissive.setHex(INTERSECTED.currentHex);
-					INTERSECTED = intersects[0].object;
-					INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
-					INTERSECTED.material.emissive.setHex(0xff0000);
-				}
-
-			} else {
-				if (INTERSECTED) INTERSECTED.material.emissive.setHex(INTERSECTED.currentHex);
-				INTERSECTED = undefined;
-			}
-
-			if (aerodrome.children.length > 0 && INTERSECTED === undefined) {
-				var plane_intersects = controlRaycaster.intersectObjects(aerodrome.children, true);
-
-				if (plane_intersects.length > 0) {
-
-					if (PLANE_INTERSECTED != plane_intersects[0].object) {
-
-						//if (PLANE_INTERSECTED) PLANE_INTERSECTED.material.emissive.setHex(PLANE_INTERSECTED.currentHex);
-						PLANE_INTERSECTED = plane_intersects[0].object;
-						console.log("Hit the target");
-						//console.log(PLANE_INTERSECTED);
-
-						score++;
-						textMesh.geometry.dispose();
-						textMesh.geometry = new THREE.TextGeometry(score.toString(), {
-							font: myfont,
-							size: .5,
-							height: .1,
-							curveSegments: 16,
-						});
-
-						textMesh.position.x = -0.2;
-						textMesh.position.y = -0.25;
-						textMesh.position.z = 0.2;
-
-						aerodrome.remove(soloPlane);
-						airplane5 = createPlane(0.01, Colors.pink);
-						soloPlaneDir = (Math.random() >= 0.5 ? -1 : 1);
-						airplane5.mesh.position.y = Math.random() * 10 - 5 + height;
-						airplane5.mesh.position.z = Math.random() * 20 - 10 + orbit;
-						if (soloPlaneDir === -1) airplane5.mesh.rotation.y = Math.PI;
-						soloPlane = new THREE.Object3D();
-						soloPlane.add(airplane5.mesh);
-						var oldPlaneSpeed = soloPlaneSpeed;
-						while (soloPlaneSpeed === oldPlaneSpeed || soloPlaneSpeed > 0.8 || soloPlaneSpeed < 0.35) {
-							soloPlaneSpeed = Math.random();
-						}
-						aerodrome.add(soloPlane);
-					}
-
-				} else {
-					PLANE_INTERSECTED = undefined;
-				}
 			}
 
 			// Keep cubes inside room
@@ -171,13 +105,15 @@
 				cube.rotation.z += cube.userData.velocity.z * 2 * delta;
 			}
 			THREE.VRController.update();
-			if (count > 1000) {
+			if (count > interval) {
 				count = 0;
 				if (arrows.length > 0) {
 					scene.remove(arrows[arrows.length - 1]);
+					// i realize i can do this by adding and removing from a parent object3D
+					//rather than directly via array operations. later...
 					arrows.pop();
 				}
-			
+
 			}
 			renderer.render(scene, camera);
 		}
