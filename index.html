@@ -32,13 +32,17 @@
 	<script src="build/three.js"></script>
 	<script src="js/vr/WebVR.js"></script>
 
+	<!-- <script src="https://cdn.rawgit.com/mrdoob/three.js/r87/build/three.js"></script>
+	<script src="https://cdn.rawgit.com/mrdoob/three.js/r87/examples/js/vr/WebVR.js"></script>
+	Can't use these because they seem to load asynchonously -->
+	<script src="js/vr/VRController.js"></script>
 	<script src="jnc_helpers/start.js"></script>
 	<script src="jnc_helpers/airplanes.js"></script>
-	<script src="js/vr/VRController.js"></script>
+
 
 	<script>
+		// all we do here is call the animation loop
 		animate();
-		// call the animation loop
 
 		function animate() {
 			renderer.setAnimationLoop(render);
@@ -46,9 +50,9 @@
 
 		function render() {
 			var delta = clock.getDelta() * 60;
-
 			var d = new Date();
 			var n = d.getTime();
+			count++;
 
 			//rotateAroundWorldAxis(soloPlane, yAxis, soloPlaneDir * Math.PI / 180 * soloPlaneSpeed);
 			soloPlane.rotation.y += soloPlaneSpeed * .01 * soloPlaneDir;
@@ -64,7 +68,6 @@
 				soloPlane.children[0].children[4].rotation.x += 0.02;
 			}
 
-
 			if (isMouseDown === true) {
 				console.log("Mouse pressed");
 				// var cube = room.children[0];
@@ -78,19 +81,10 @@
 					cube.userData.velocity.z = (Math.random() * 0.01 - 0.05) * delta;
 					cube.userData.velocity.applyQuaternion(camera.quaternion);
 					room.add(cube); */
-
 			}
 
-			// find intersections of objects
-
-			raycaster.setFromCamera({
-				x: 0,
-				y: 0
-			}, camera);
-
-
-
-			var intersects = raycaster.intersectObjects(room.children, false);
+			// find intersections of objects with controller raycaster
+			var intersects = controlRaycaster.intersectObjects(room.children, false);
 
 			if (intersects.length > 0) {
 
@@ -98,7 +92,6 @@
 					if (INTERSECTED) INTERSECTED.material.emissive.setHex(INTERSECTED.currentHex);
 					INTERSECTED = intersects[0].object;
 					INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
-
 					INTERSECTED.material.emissive.setHex(0xff0000);
 				}
 
@@ -107,9 +100,8 @@
 				INTERSECTED = undefined;
 			}
 
-
 			if (aerodrome.children.length > 0 && INTERSECTED === undefined) {
-				var plane_intersects = raycaster.intersectObjects(aerodrome.children, true);
+				var plane_intersects = controlRaycaster.intersectObjects(aerodrome.children, true);
 
 				if (plane_intersects.length > 0) {
 
@@ -128,11 +120,10 @@
 							height: .1,
 							curveSegments: 16,
 						});
-						
+
 						textMesh.position.x = -0.2;
 						textMesh.position.y = -0.25;
 						textMesh.position.z = 0.2;
-
 
 						aerodrome.remove(soloPlane);
 						airplane5 = createPlane(0.01, Colors.pink);
@@ -147,53 +138,47 @@
 							soloPlaneSpeed = Math.random();
 						}
 						aerodrome.add(soloPlane);
-
 					}
 
 				} else {
 					PLANE_INTERSECTED = undefined;
 				}
-
 			}
 
-
 			// Keep cubes inside room
-
 			for (var i = 0; i < room.children.length; i++) {
-
 				var cube = room.children[i];
-
 				//cube.userData.velocity.multiplyScalar(1 + (0.001 * delta));
-
 				cube.position.add(cube.userData.velocity);
 
 				if (cube.position.x < -rmSize || cube.position.x > rmSize) {
-
 					cube.position.x = THREE.Math.clamp(cube.position.x, -rmSize, rmSize);
 					cube.userData.velocity.x = -cube.userData.velocity.x;
-
 				}
 
 				if (cube.position.y < -rmSize || cube.position.y > rmSize) {
-
 					cube.position.y = THREE.Math.clamp(cube.position.y, -rmSize, rmSize);
 					cube.userData.velocity.y = -cube.userData.velocity.y;
-
 				}
 
 				if (cube.position.z < -rmSize || cube.position.z > rmSize) {
-
 					cube.position.z = THREE.Math.clamp(cube.position.z, -rmSize, rmSize);
 					cube.userData.velocity.z = -cube.userData.velocity.z;
-
 				}
 
 				cube.rotation.x += cube.userData.velocity.x * 2 * delta;
 				cube.rotation.y += cube.userData.velocity.y * 2 * delta;
 				cube.rotation.z += cube.userData.velocity.z * 2 * delta;
-
 			}
-			THREE.VRController.update()
+			THREE.VRController.update();
+			if (count > 1000) {
+				count = 0;
+				if (arrows.length > 0) {
+					scene.remove(arrows[arrows.length - 1]);
+					arrows.pop();
+				}
+			
+			}
 			renderer.render(scene, camera);
 		}
 	</script>

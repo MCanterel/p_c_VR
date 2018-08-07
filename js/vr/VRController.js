@@ -437,7 +437,7 @@ THREE.VRController.prototype.update = function(){
 	//  THREE.Quaternion our controller’s Object3D was initialized with.
 
 	if( pose.orientation !== null ) this.quaternion.fromArray( pose.orientation )
-	console.log(pose.orientation);
+	//console.log(pose.orientation);
 
 
 	//  POSITION -- EXISTS!
